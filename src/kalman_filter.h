@@ -2,6 +2,8 @@
 #define KALMAN_FILTER_H_
 #include "Eigen/Dense"
 
+#define pi 3.14159265358979323846
+
 class KalmanFilter {
 public:
 
@@ -22,6 +24,9 @@ public:
 
   // measurement covariance matrix
   Eigen::MatrixXd R_;
+
+  // prediction-measurement error
+  Eigen::VectorXd y_;
 
   /**
    * Constructor
@@ -50,7 +55,7 @@ public:
    * using the process model
    * @param delta_T Time between k and k+1 in s
    */
-  void Predict();
+  void Predict(long dT);
 
   /**
    * Updates the state by using standard Kalman Filter equations
