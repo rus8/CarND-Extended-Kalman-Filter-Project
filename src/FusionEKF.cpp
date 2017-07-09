@@ -67,6 +67,17 @@ FusionEKF::FusionEKF() {
 */
 FusionEKF::~FusionEKF() {}
 
+VectorXd FusionEKF::TransformState(const VectorXd &x) {
+    VectorXd h_x(3);
+    h_x(0) = sqrt(x(0) * x(0) + x(1) * x(1));
+    h_x(1) = atan(Tools::NormalizeAngle(x(1) / x(2)));
+    h_x(2) = 0.0;
+    if (h_x(0) > 0.0001){
+        h_x(2) = (x(0) * x(2) + x(1) * x(3)) / h_x(0);
+    }
+    return h_x;
+}
+
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
 
@@ -149,7 +160,16 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      */
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
         // Radar updates
-        if()
+        Hj_ = Tools::CalculateJacobian(ekf_.x_);
+        ekf_.H_ = Hj_;
+        ekf_.R_ = R_radar_;
+
+        VectorXd z(3);
+        z << measurement_pack.raw_measurements_(0),
+                measurement_pack.raw_measurements_(1),
+                measurement_pack.raw_measurements_(2);
+
+        ekf_.UpdateEKF(z, &TransformState);
     } else {
         // Laser updates
         ekf_.H_ = H_laser_;
