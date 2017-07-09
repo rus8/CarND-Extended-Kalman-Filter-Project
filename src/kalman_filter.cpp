@@ -33,11 +33,17 @@ void KalmanFilter::Update(const VectorXd &z) {
     * update the state by using Kalman Filter equations
   */
     // prediction-measurement error
-    VectorXd y_;
-    y_ = z - H_*x_;
+    VectorXd y;
+    y = z - H_*x_;
 
-    MatrixXd S_;
-    S_ =
+    MatrixXd S;
+    S = H_ * P_ * H_.transpose() + R_;
+
+    MatrixXd K;
+    K = P_ * H_.transpose() * S.inverse();
+
+    x_ = x_ + K * y;
+    P_ = (I_ - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
