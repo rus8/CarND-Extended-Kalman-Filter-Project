@@ -78,3 +78,13 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 
     return Hj;
 }
+
+double Tools::NormalizeAngle(double angle) {
+    while(angle < -pi){
+        angle += 2*pi;
+    }
+    while(angle > pi){
+        angle -= 2*pi;
+    }
+    return angle;
+}
