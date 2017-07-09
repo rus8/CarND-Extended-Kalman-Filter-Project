@@ -26,7 +26,7 @@ public:
     */
     void ProcessMeasurement(const MeasurementPackage &measurement_pack);
 
-    VectorXd TransformState(const VectorXd &x);
+    static VectorXd TransformState(const VectorXd &x);
 
     /**
     * Kalman Filter update and prediction math lives in here.
