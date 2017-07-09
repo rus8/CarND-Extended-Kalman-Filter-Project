@@ -75,7 +75,7 @@ int main()
           		iss >> py;
           		meas_package.raw_measurements_ << px, py;
           		iss >> timestamp;
-          		meas_package.timestamp_ = timestamp;
+          		meas_package.timestamp_ = timestamp/1000000;
           } else if (sensor_type.compare("R") == 0) {
 
       	  		meas_package.sensor_type_ = MeasurementPackage::RADAR;
