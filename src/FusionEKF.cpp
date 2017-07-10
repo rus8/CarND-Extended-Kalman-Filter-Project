@@ -108,7 +108,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         // first measurement
         cout << "EKF: " << endl;
         ekf_.x_ = VectorXd(4);
-        ekf_.x_ << 1, 1, 0.1, 0.1;
+        ekf_.x_ << 1, 1, 0, 0;
 
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
             /**
@@ -117,11 +117,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             */
             double ro = measurement_pack.raw_measurements_(0);
             double theta = measurement_pack.raw_measurements_(1);
-//            double dro = measurement_pack.raw_measurements_(2);
+            double dro = measurement_pack.raw_measurements_(2);
             ekf_.x_(0) = ro * cos(theta);
             ekf_.x_(1) = ro * sin(theta);
-            //ekf_.x_(2) = dro * cos(theta);
-            //ekf_.x_(3) = dro * sin(theta);
+            ekf_.x_(2) = dro * cos(theta);
+            ekf_.x_(3) = dro * sin(theta);
         }
         else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
             /**
