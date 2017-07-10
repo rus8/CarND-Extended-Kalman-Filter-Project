@@ -2,6 +2,7 @@
 #include "tools.h"
 #include "Eigen/Dense"
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -69,18 +70,25 @@ FusionEKF::FusionEKF() {
 */
 FusionEKF::~FusionEKF() {}
 
+/**
+ * Nonlinear transformation function from state to radar measurement (cort -> polar)
+ * @param x state vector
+ * @return h_x - transformed state to radar measurement
+ */
 VectorXd FusionEKF::TransformState(const VectorXd &x) {
     VectorXd h_x(3);
     h_x(0) = sqrt(x(0) * x(0) + x(1) * x(1));
-    if (x(0) == 0.0){
-        h_x(1) = x(1)/abs(x(1)) * pi/2;
+//    if (x(0) == 0.0){
+//        h_x(1) = x(1)/abs(x(1)) * pi/2;
+//    } else {
+        h_x(1) = atan2(x(1), x(0));
+//    }
+    if (h_x(0) < 0.0001){
+        h_x(2) = 0;//(x(0) * x(2) + x(1) * x(3)) / 0.0001;
     } else {
-        h_x(1) = atan(Tools::NormalizeAngle(x(1) / x(0)));
-    }
-    h_x(2) = 0.0;
-    if (h_x(0) > 0.0001){
         h_x(2) = (x(0) * x(2) + x(1) * x(3)) / h_x(0);
     }
+
     return h_x;
 }
 
@@ -100,7 +108,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         // first measurement
         cout << "EKF: " << endl;
         ekf_.x_ = VectorXd(4);
-        ekf_.x_ << 0.0, 0.0, 0.0, 0.0;
+        ekf_.x_ << 1, 1, 0.1, 0.1;
 
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
             /**
@@ -109,7 +117,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             */
             double ro = measurement_pack.raw_measurements_(0);
             double theta = measurement_pack.raw_measurements_(1);
-            double dro = measurement_pack.raw_measurements_(2);
+//            double dro = measurement_pack.raw_measurements_(2);
             ekf_.x_(0) = ro * cos(theta);
             ekf_.x_(1) = ro * sin(theta);
             //ekf_.x_(2) = dro * cos(theta);
@@ -141,10 +149,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
        * Update the process noise covariance matrix.
        * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
      */
-    long dT = measurement_pack.timestamp_ - previous_timestamp_;
+    float dT = (measurement_pack.timestamp_ - previous_timestamp_)/ 1000000.0;
 
-    ekf_.F_(0, 2) = double(dT);
-    ekf_.F_(1, 3) = double(dT);
+    ekf_.F_(0, 2) = dT;
+    ekf_.F_(1, 3) = dT;
 
     double dT2 = dT * dT;
     double dT3 = dT2 * dT;
@@ -168,8 +176,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      */
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
         // Radar updates
-        Hj_ = Tools::CalculateJacobian(ekf_.x_);
-        ekf_.H_ = Hj_;
+//        Hj_ = Tools::CalculateJacobian(ekf_.x_);
+        ekf_.H_ = Tools::CalculateJacobian(ekf_.x_);//Hj_;
         ekf_.R_ = R_radar_;
 
         VectorXd z(3);
