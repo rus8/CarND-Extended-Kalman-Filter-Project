@@ -17,7 +17,7 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   Q_ = Q_in;
 }
 
-void KalmanFilter::Predict(long dT) {
+void KalmanFilter::Predict(double dT) {
   /**
   TODO:
     * predict the state

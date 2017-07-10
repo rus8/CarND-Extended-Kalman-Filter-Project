@@ -52,7 +52,7 @@ public:
    * using the process model
    * @param delta_T Time between k and k+1 in s
    */
-  void Predict(long dT);
+  void Predict(double dT);
 
   /**
    * Updates the state by using standard Kalman Filter equations
