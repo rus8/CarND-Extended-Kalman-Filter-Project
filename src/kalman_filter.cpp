@@ -54,6 +54,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z, VectorXd (*h_x_transform)(const 
     // prediction-measurement error
     VectorXd y;
     y = z - h_x_transform(x_);
+    // hot fix
+    if (fabs(y(1)) > M_PI){
+        y(1) = atan2(sin(y(1)), cos(y(1)));
+    }
 
     MatrixXd S;
     S = H_ * P_ * H_.transpose() + R_;
