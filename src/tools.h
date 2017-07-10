@@ -3,8 +3,6 @@
 #include <vector>
 #include "Eigen/Dense"
 
-#define pi 3.14159265358979323846
-
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using namespace std;
